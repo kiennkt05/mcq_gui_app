@@ -7,41 +7,52 @@ class MCQApp:
     def __init__(self, master):
         self.master = master
         self.master.title("Multiple Choice Quiz")
-        self.master.geometry("600x400")
+        self.master.geometry("600x500")
         self.master.resizable(False, False)
         self.mcqs = []
         self.current_question_index = 0
         self.score = 0
 
+        # Main Frame
+        self.main_frame = tk.Frame(master, padx=20, pady=20)
+        self.main_frame.pack(expand=True)
+
+        # Progress Label
+        self.progress_label = tk.Label(self.main_frame, text="Question 1", font=("Arial", 12), fg="blue")
+        self.progress_label.pack(pady=5)
+
         # Question Label
-        self.question_label = tk.Label(master, text="", wraplength=500, font=("Arial", 14), justify="left")
+        self.question_label = tk.Label(self.main_frame, text="", wraplength=500, font=("Arial", 14), justify="left")
         self.question_label.pack(pady=20)
 
         # Options
         self.options_var = tk.StringVar()
         self.option_buttons = []
         for i in range(4):
-            btn = tk.Radiobutton(master, text="", variable=self.options_var, value="", font=("Arial", 12), wraplength=500, anchor="w", command=self.check_answer)
-            btn.pack(anchor='w', padx=20, pady=10)
+            btn = tk.Radiobutton(self.main_frame, text="", variable=self.options_var, value=f"Option {i}",
+                                 font=("Arial", 12), wraplength=500, anchor="w", command=self.check_answer)
+            btn.pack(anchor="w", pady=5)
             self.option_buttons.append(btn)
 
         # Feedback Label
-        self.feedback_label = tk.Label(master, text="", wraplength=500, font=("Arial", 12), fg="green", justify="left")
+        self.feedback_label = tk.Label(self.main_frame, text="", wraplength=500, font=("Arial", 12), fg="green")
         self.feedback_label.pack(pady=10)
 
-        # Navigation and Question Selection Frame
-        self.nav_frame = tk.Frame(master)
-        self.nav_frame.pack(side='left', pady=0)
+        # Navigation Frame
+        self.nav_frame = tk.Frame(self.main_frame)
+        self.nav_frame.pack(pady=20)
 
         # Next Button
-        self.next_button = tk.Button(self.nav_frame, text="Skip", command=self.next_question, font=("Arial", 12), bg="#4CAF50", fg="white", padx=10, pady=0)
+        self.next_button = tk.Button(self.nav_frame, text="Skip", command=self.next_question, font=("Arial", 12),
+                                     bg="#4CAF50", fg="white", padx=10, pady=0)
         self.next_button.pack(side="left", padx=10)
 
         # Question Selector Entry and Button
         self.question_selector_entry = tk.Entry(self.nav_frame, font=("Arial", 12), width=5)
         self.question_selector_entry.pack(side="left", padx=10)
 
-        self.question_selector_button = tk.Button(self.nav_frame, text="Go", command=self.select_question_by_number, font=("Arial", 12), bg="#2196F3", fg="white", padx=10, pady=0)
+        self.question_selector_button = tk.Button(self.nav_frame, text="Go", command=self.select_question_by_number,
+                                                  font=("Arial", 12), bg="#2196F3", fg="white", padx=10, pady=0)
         self.question_selector_button.pack(side="left", padx=10)
 
         # Load MCQs and Display the First Question
@@ -70,6 +81,7 @@ class MCQApp:
     def display_question(self):
         if self.current_question_index < len(self.mcqs):
             mcq = self.mcqs[self.current_question_index]
+            self.progress_label.config(text=f"Question {self.current_question_index + 1} of {len(self.mcqs)}")
             self.question_label.config(text=mcq['question'])
             self.options_var.set(None)  # Reset selected option
             for i, option in enumerate(mcq['options']):
@@ -86,7 +98,7 @@ class MCQApp:
             self.score += 1
             self.feedback_label.config(text="Correct!", fg="green")
         else:
-            self.feedback_label.config(text=f"Incorrect! Please try again!", fg="red")
+            self.feedback_label.config(text=f"Incorrect! The correct answer is: {correct_answer}", fg="red")
         self.next_button.config(state=tk.NORMAL, text="Next")  # Enable "Next" button
 
     def next_question(self):
