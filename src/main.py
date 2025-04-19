@@ -7,37 +7,44 @@ class MCQApp:
     def __init__(self, master):
         self.master = master
         self.master.title("Multiple Choice Quiz")
+        self.master.geometry("600x400")
+        self.master.resizable(False, False)
         self.mcqs = []
         self.current_question_index = 0
         self.score = 0
 
-        self.question_label = tk.Label(master, text="", wraplength=400)
+        # Question Label
+        self.question_label = tk.Label(master, text="", wraplength=500, font=("Arial", 14), justify="left")
         self.question_label.pack(pady=20)
 
+        # Options
         self.options_var = tk.StringVar()
         self.option_buttons = []
-
         for i in range(4):
-            btn = tk.Radiobutton(master, text="", variable=self.options_var, value="", command=self.check_answer)
-            btn.pack(anchor='w')
+            btn = tk.Radiobutton(master, text="", variable=self.options_var, value="", font=("Arial", 12), wraplength=500, anchor="w", command=self.check_answer)
+            btn.pack(anchor='w', padx=20, pady=10)
             self.option_buttons.append(btn)
 
-        self.feedback_label = tk.Label(master, text="", wraplength=400)
+        # Feedback Label
+        self.feedback_label = tk.Label(master, text="", wraplength=500, font=("Arial", 12), fg="green", justify="left")
         self.feedback_label.pack(pady=10)
 
-        self.next_button = tk.Button(master, text="Next", command=self.next_question)
-        self.next_button.pack(pady=20)
+        # Navigation and Question Selection Frame
+        self.nav_frame = tk.Frame(master)
+        self.nav_frame.pack(side='left', pady=0)
 
-        # Replace the dropdown menu with an entry field and a button
-        self.question_selector_label = tk.Label(master, text="Enter Question Number:")
-        self.question_selector_label.pack(pady=5)
+        # Next Button
+        self.next_button = tk.Button(self.nav_frame, text="Skip", command=self.next_question, font=("Arial", 12), bg="#4CAF50", fg="white", padx=10, pady=0)
+        self.next_button.pack(side="left", padx=10)
 
-        self.question_selector_entry = tk.Entry(master)
-        self.question_selector_entry.pack(pady=5)
+        # Question Selector Entry and Button
+        self.question_selector_entry = tk.Entry(self.nav_frame, font=("Arial", 12), width=5)
+        self.question_selector_entry.pack(side="left", padx=10)
 
-        self.question_selector_button = tk.Button(master, text="Go", command=self.select_question_by_number)
-        self.question_selector_button.pack(pady=5)
+        self.question_selector_button = tk.Button(self.nav_frame, text="Go", command=self.select_question_by_number, font=("Arial", 12), bg="#2196F3", fg="white", padx=10, pady=0)
+        self.question_selector_button.pack(side="left", padx=10)
 
+        # Load MCQs and Display the First Question
         mcq_file_path = os.path.join(os.path.dirname(__file__), "assets", "input.txt")
         self.load_mcqs(mcq_file_path)
         self.display_question()
@@ -45,21 +52,12 @@ class MCQApp:
     def load_mcqs(self, file_path):
         if os.path.exists(file_path):
             self.mcqs = read_mcqs(file_path)
-            for i, mcq in enumerate(self.mcqs):
-                print(f"Question {i + 1}: {mcq['question']}")
         else:
             messagebox.showerror("Error", f"{file_path} not found.")
             self.master.quit()
 
-    def select_question(self, question_label):
-        # Extract the question index from the label (e.g., "Question 1" -> index 0)
-        question_index = int(question_label.split()[-1]) - 1
-        self.current_question_index = question_index
-        self.display_question()
-
     def select_question_by_number(self):
         try:
-            # Get the question number from the entry field
             question_number = int(self.question_selector_entry.get())
             if 1 <= question_number <= len(self.mcqs):
                 self.current_question_index = question_number - 1
@@ -72,15 +70,12 @@ class MCQApp:
     def display_question(self):
         if self.current_question_index < len(self.mcqs):
             mcq = self.mcqs[self.current_question_index]
-            if mcq['question']:
-                self.question_label.config(text=mcq['question'])
-            else:
-                self.question_label.config(text="Question not available.")
+            self.question_label.config(text=mcq['question'])
+            self.options_var.set(None)  # Reset selected option
             for i, option in enumerate(mcq['options']):
                 self.option_buttons[i].config(text=option, value=option[0])  # Set value to A, B, C, or D
-            self.options_var.set(None)  # Reset selected option
             self.feedback_label.config(text="")  # Clear feedback
-            self.next_button.config(state=tk.DISABLED)  # Disable the "Next" button until the correct answer is selected
+            self.next_button.config(text="Skip")  # Set button text to "Skip"
         else:
             self.end_quiz()
 
@@ -90,12 +85,11 @@ class MCQApp:
         if selected_answer == correct_answer:
             self.score += 1
             self.feedback_label.config(text="Correct!", fg="green")
-            self.next_button.config(state=tk.NORMAL)  # Enable the "Next" button
         else:
-            self.feedback_label.config(text="Incorrect! Try again.", fg="red")
+            self.feedback_label.config(text=f"Incorrect! Please try again!", fg="red")
+        self.next_button.config(state=tk.NORMAL, text="Next")  # Enable "Next" button
 
     def next_question(self):
-        print(f"Moving to question {self.current_question_index + 2}")  # Debugging
         self.current_question_index += 1
         self.display_question()
 

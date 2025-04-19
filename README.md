@@ -8,7 +8,6 @@ This project is a graphical user interface (GUI) application for displaying mult
 mcq_gui_app
 ├── src
 │   ├── main.py          # Entry point of the application
-│   ├── gui.py           # Contains the GUI class for displaying MCQs
 │   ├── mcq_reader.py    # Functions for reading MCQs from a file
 │   └── assets
 │       └── input.txt    # Input file containing MCQs
@@ -19,6 +18,7 @@ mcq_gui_app
 ## Setup Instructions
 
 1. **Clone the repository**:
+
    ```
    git clone <repository-url>
    cd mcq_gui_app
@@ -26,6 +26,7 @@ mcq_gui_app
 
 2. **Install dependencies**:
    Make sure you have Python installed. Then, install the required libraries using:
+
    ```
    pip install -r requirements.txt
    ```
